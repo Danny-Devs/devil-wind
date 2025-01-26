@@ -1,20 +1,19 @@
 using UnityEngine;
 using UnityEngine.Video;
-using UnityEngine.Playables;
+using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class ThirdVideoController : MonoBehaviour
 {
     [SerializeField] private Transform playerCamera;
     [SerializeField] private VideoPlayer videoPlayer;
     [SerializeField] private float triggerDistance = 2f;
-    [SerializeField] private PlayableDirector timelineDirector; // Reference to the PlayableDirector
+    [SerializeField] private float sceneChangeDelay = 2f;
     private bool isTriggered = false;
 
     void Start()
     {
-        // Subscribe to the loopPointReached event
         videoPlayer.loopPointReached += OnVideoFinished;
-
     }
 
     void Update()
@@ -34,20 +33,17 @@ public class ThirdVideoController : MonoBehaviour
     private void OnVideoFinished(VideoPlayer vp)
     {
         Debug.Log("Video finished playing.");
-        // Start the timeline when the video finishes
-        if (timelineDirector != null)
-        {
-            timelineDirector.Play();
-        }
-        else
-        {
-            Debug.LogWarning("PlayableDirector is not assigned.");
-        }
+        StartCoroutine(LoadNextScene());
+    }
+
+    private IEnumerator LoadNextScene()
+    {
+        yield return new WaitForSeconds(sceneChangeDelay);
+        SceneManager.LoadScene("Scene02");
     }
 
     private void OnDestroy()
     {
-        // Unsubscribe from the event to prevent memory leaks
         videoPlayer.loopPointReached -= OnVideoFinished;
     }
 }
